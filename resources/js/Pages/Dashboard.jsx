@@ -83,7 +83,7 @@ export default function Dashboard() {
                 {/* ===== TITLE (центр экрана) ===== */}
                 <div
                     className={
-                        "absolute left-1/2 transform -translate-x-1/2 text-center transition-all duration-500 " +
+                        "absolute left-0 right-0 flex flex-col items-center px-2 sm:px-4 md:px-8 " +
                         (messages.length === 0
                             ? "top-[22%] opacity-100"
                             : "top-[5%] opacity-0")
@@ -105,20 +105,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* CHAT WINDOW */}
-                <div
-                    className="absolute left-1/2 transform -translate-x-1/2 w-full px-4
-                overflow-y-auto space-y-4"
-                    style={{
-                        top: "0%",
-                        bottom: "0%",
-                        // paddingBottom: "150px",
-                        marginBottom: "110px",
-                        paddingTop: "50px",
-                        paddingLeft: "400px",
-                        paddingRight: "400px",
-                        position: "absolute",
-                    }}
-                >
+                <div className="w-full h-full overflow-y-auto space-y-4 px-4 pt-20 pb-20 sm:pt-4 md:px-[10%] lg:px-[10%] xl:px-[10%] 2xl:px-[10%]">
                     {messages.map((msg, index) => (
                         <div
                             key={index}
@@ -128,7 +115,7 @@ export default function Dashboard() {
                         >
                             <div
                                 className={
-                                    "inline-block px-4 py-2 rounded-xl shadow-md max-w-[80%] " +
+                                    "inline-block px-4 py-2 rounded-xl shadow-md max-w-[85%] md:max-w-[70%] lg:max-w-[55%] " +
                                     (msg.role === "user"
                                         ? "bg-[#21397D] text-white"
                                         : "bg-gray-200 text-gray-800")
@@ -155,15 +142,13 @@ export default function Dashboard() {
                 {/* ===== INPUT BOX ===== */}
                 <div
                     className={
-                        "absolute left-1/2 transform -translate-x-1/2 w-full transition-all duration-500 " +
-                        (messages.length === 0 ? "top-[40%]" : "bottom-6")
+                        "absolute left-1/2 transform -translate-x-1/2 w-full transition-all duration-500 px-4 md:px-[10%] lg:px-[10%] xl:px-[10%] 2xl:px-[10%] " +
+                        (messages.length === 0 ? "bottom-6" : "bottom-6")
                     }
-                    style={{
-                        // paddingBottom: "150px",
-                        // marginBottom: "110px",
-                        paddingLeft: "400px",
-                        paddingRight: "400px",
-                    }}
+                    // style={{
+                    //     paddingLeft: "400px",
+                    //     paddingRight: "400px",
+                    // }}
                 >
                     {answer && (
                         <div className="mt-6 max-w-3xl mx-auto bg-white shadow rounded-xl p-6 text-gray-800">

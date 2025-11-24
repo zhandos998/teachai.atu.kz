@@ -76,3 +76,7 @@
     }
 }
 /* aurora end */
+html,
+body {
+    overflow: hidden;
+}
