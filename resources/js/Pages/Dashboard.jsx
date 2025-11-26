@@ -105,7 +105,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* CHAT WINDOW */}
-                <div className="w-full h-full overflow-y-auto space-y-4 px-4 pt-20 pb-20 sm:pt-4 md:px-[10%] lg:px-[10%] xl:px-[10%] 2xl:px-[10%]">
+                <div className="w-full h-full overflow-y-auto space-y-4 px-4 pt-20 pb-20 sm:pt-20 md:px-[10%] lg:px-[10%] xl:px-[10%] 2xl:px-[10%]">
                     {messages.map((msg, index) => (
                         <div
                             key={index}
@@ -143,12 +143,8 @@ export default function Dashboard() {
                 <div
                     className={
                         "absolute left-1/2 transform -translate-x-1/2 w-full transition-all duration-500 px-4 md:px-[10%] lg:px-[10%] xl:px-[10%] 2xl:px-[10%] " +
-                        (messages.length === 0 ? "bottom-6" : "bottom-6")
+                        (messages.length === 0 ? "bottom-2" : "bottom-2")
                     }
-                    // style={{
-                    //     paddingLeft: "400px",
-                    //     paddingRight: "400px",
-                    // }}
                 >
                     {answer && (
                         <div className="mt-6 max-w-3xl mx-auto bg-white shadow rounded-xl p-6 text-gray-800">
@@ -196,6 +192,11 @@ export default function Dashboard() {
                             </svg>
                         </button>
                     </div>
+                    {/* ⚠️ СИСТЕМНАЯ ПОДПИСЬ */}
+                    <p className="text-center text-xs text-gray-900 pt-2">
+                        TeachAI может допускать ошибки. Проверяйте важные
+                        данные.
+                    </p>
                 </div>
             </div>
         </AuthenticatedLayout>

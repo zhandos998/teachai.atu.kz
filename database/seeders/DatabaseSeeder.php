@@ -21,7 +21,9 @@ class DatabaseSeeder extends Seeder
             [
                 RoleSeeder::class,
                 UserSeeder::class,
+                DocumentSeeder::class,
             ]
         );
     }
 }
+// php artisan db:seed --class=DocumentSeeder
