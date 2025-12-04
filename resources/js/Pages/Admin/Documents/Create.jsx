@@ -67,7 +67,37 @@ export default function Create() {
                             onChange={(e) => setData("text", e.target.value)}
                         />
                     </div>
+                    <div className="bg-gray-50 border border-gray-200 rounded-md p-4">
+                        <pre className="whitespace-pre-wrap text-sm leading-5 text-gray-800">
+                            {`формат PHP-массив
+                                [
+                                    "chapter" => "1. Навигация по личному кабинету",
+                                    "subchapters" => [
+                                        [
+                                            "code" => "1.1",
+                                            "title" => "Как войти в систему",
+                                            "text" => "..."
+                                        ],
+                                        [
+                                            "code" => "1.2",
+                                            "title" => "Навигация: основные рабочие блоки",
+                                            "text" => "..."
+                                        ],
+                                        [
+                                            "code" => "1.3",
+                                            "title" => "Навигация: основные рабочие блоки",
+                                            "text" => "..."
+                                        ],
+                                    ],
+                                ]
 
+                                Надо подробно описать, что происходит в каждом подотделе.
+                                Цель — подробно объяснить содержание подотдела так,
+                                чтобы пользователь понял материал без фотографий.
+                                НИЧЕГО не выдумывать.
+                            `}
+                        </pre>
+                    </div>
                     {/* Save button */}
                     <button
                         className="

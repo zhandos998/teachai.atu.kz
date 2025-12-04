@@ -2,6 +2,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, router, usePage } from "@inertiajs/react";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
 
 export default function Dashboard() {
     const [isThinking, setIsThinking] = useState(false);
@@ -121,7 +122,7 @@ export default function Dashboard() {
                                         : "bg-gray-200 text-gray-800")
                                 }
                             >
-                                {msg.content}
+                                <ReactMarkdown>{msg.content}</ReactMarkdown>
                             </div>
                         </div>
                     ))}
