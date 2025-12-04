@@ -80,16 +80,23 @@ export default function Login({ status, canResetPassword }) {
                     </label>
                 </div> */}
 
-                <div className="mt-4 flex items-center justify-end">
+                <div className="mt-4 flex items-center justify-end space-x-4">
                     {canResetPassword && (
                         <Link
                             href={route("password.request")}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            className="text-sm text-gray-600 hover:text-indigo-600 underline"
                         >
                             Забыли пароль?
                         </Link>
                     )}
 
+                    <Link
+                        href="/register"
+                        className="inline-flex items-center px-4 py-2 bg-white border border-indigo-500 text-indigo-600
+                   rounded-md text-sm font-medium hover:bg-indigo-50 transition"
+                    >
+                        Регистрация
+                    </Link>
                     <PrimaryButton className="ms-4" disabled={processing}>
                         Авторизация
                     </PrimaryButton>

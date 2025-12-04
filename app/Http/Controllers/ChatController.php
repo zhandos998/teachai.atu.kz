@@ -249,7 +249,7 @@ class ChatController extends Controller
             if (!is_array($possibleOptions) || empty($possibleOptions)) {
 
                 $fallback = "Я не уверен, что правильно понял ваш вопрос. " .
-                    "Пожалуйста, уточните, что именно вы хотите сделать в Hero Study.";
+                    "Пожалуйста, уточните, что именно вы хотите сделать в TeachAI.";
 
                 $chat->messages()->create([
                     'role' => 'assistant',
