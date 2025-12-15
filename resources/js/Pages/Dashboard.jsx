@@ -87,7 +87,7 @@ export default function Dashboard() {
                         "absolute left-0 right-0 flex flex-col items-center px-2 sm:px-4 md:px-8 " +
                         (messages.length === 0
                             ? "top-[22%] opacity-100"
-                            : "top-[5%] opacity-0")
+                            : "top-[5%] opacity-0 hidden")
                     }
                 >
                     <h1

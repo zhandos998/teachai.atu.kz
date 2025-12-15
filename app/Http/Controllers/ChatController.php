@@ -8,11 +8,20 @@ use App\Models\Document;
 use Illuminate\Http\Request;
 use OpenAI\Laravel\Facades\OpenAI;
 use Illuminate\Support\Facades\Log;
+use App\Services\Chat\ChatPipeline;
 
 class ChatController extends Controller
 {
-
     public function send(Request $request)
+    {
+        $chat = $this->getChat($request);
+        $question = $this->storeUserMessage($chat, $request->message);
+
+        return app(ChatPipeline::class)
+            ->handle($chat, $question);
+    }
+
+    public function send_old(Request $request)
     {
         $chat = Chat::findOrFail($request->chat_id);
 
@@ -66,10 +75,16 @@ class ChatController extends Controller
                         "\"кто ты\", \"что умеешь\", \"пока\", \"ок\", \"ясно\"),\n" .
                         "то НЕ выполняй классификацию titles.\n" .
                         "Вместо этого верни JSON: [\"SMALL_TALK\"]\n\n" .
+
                         "Если вопрос касается людей, отношений, общения, эмоций,\n" .
                         "поведения, личных тем, советов, психологии,\n" .
                         "или любых вопросов НЕ относящихся к документам, УМКД, Hero Study,\n" .
                         "верни JSON: [\"NOT_RELATED\"].\n" .
+
+                        "Если вопрос относится к образованию, обучению, методике преподавания,\n" .
+                        "но НЕ связан с документами Hero Study, УМКД, учебными планами,\n" .
+                        "и в списке titles НЕТ подходящих разделов —\n" .
+                        "верни JSON: [\"OUT_OF_SCOPE\"].\n" .
 
                         "Твоя основная задача — найти подходящие titles к вопросу пользователя.\n" .
                         "Если вопрос пользователя НЕ относится к разделам из списка — верни пустой массив [].\n" .
@@ -198,6 +213,30 @@ class ChatController extends Controller
             $fallback =
                 "Информация не найдена.\n\n" .
                 "Если вам нужен точный ответ, обратитесь в Учебно-методическое управление:\n" .
+                "- вн.т.: 195\n" .
+                "- n.ahmetova@atu.edu.kz\n" .
+                "- nursulu.akhmetova.2013@mail.ru\n" .
+                "- каб. 521\n";
+
+            $chat->messages()->create([
+                'role' => 'assistant',
+                'content' => $fallback,
+            ]);
+
+            return response()->json([
+                'answer' => $fallback
+            ]);
+        }
+
+        // ===============================================
+        // Вопрос по теме образования, но не по базе Hero Study (OUT_OF_SCOPE)
+        // ===============================================
+        if ($matchedTitles === ["OUT_OF_SCOPE"]) {
+
+            $fallback =
+                "Данные по вашему запросу отсутствуют в базе документов TeachAI.\n\n" .
+                "Если вам нужна точная структура методической разработки занятия,\n" .
+                "обратитесь в Учебно-методическое управление:\n" .
                 "- вн.т.: 195\n" .
                 "- n.ahmetova@atu.edu.kz\n" .
                 "- nursulu.akhmetova.2013@mail.ru\n" .
@@ -386,8 +425,6 @@ class ChatController extends Controller
         ]);
     }
 
-
-
     public function createChat()
     {
         $chat = Chat::create([
@@ -442,5 +479,28 @@ class ChatController extends Controller
         $chat->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    protected function getChat(Request $request): Chat
+    {
+        $chat = Chat::findOrFail($request->chat_id);
+
+        if ($chat->user_id !== auth()->id()) {
+            abort(403, 'Access denied.');
+        }
+
+        return $chat;
+    }
+
+    protected function storeUserMessage(Chat $chat, string $message): string
+    {
+        $chat->messages()->create([
+            'role' => 'user',
+            'content' => $message,
+        ]);
+
+        Log::info('USER QUESTION:', [$message]);
+
+        return $message;
     }
 }
