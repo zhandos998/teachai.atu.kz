@@ -7,6 +7,35 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Docker
+
+Проект можно поднять через Docker Compose с PHP/Apache, Vite и MySQL:
+
+```bash
+docker compose up --build
+```
+
+После запуска приложение будет доступно на `http://localhost:8081`, Vite dev server на `http://localhost:5173`, а MySQL с хоста на `127.0.0.1:3308`.
+
+Параметры базы для Docker уже заданы в `.env.docker`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=teachai
+DB_USERNAME=teachai
+DB_PASSWORD=teachai
+```
+
+Миграции запускаются автоматически при старте контейнера `app`. Чтобы добавить сиды:
+
+```bash
+docker compose exec app php artisan db:seed
+```
+
+Если нужен OpenAI API, добавьте ключ в локальный `.env` или в `.env.docker`.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
