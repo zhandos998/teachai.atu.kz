@@ -1,0 +1,131 @@
+TeachAI server commands
+=======================
+
+Server:
+  172.20.252.171
+
+SSH:
+  ssh zhagparovr@172.20.252.171
+
+Project path on server:
+  cd /opt/apps/teachai
+
+
+Check containers
+----------------
+  docker compose --env-file .env.docker -f docker-compose.prod.yml ps
+
+
+Show logs
+---------
+All services:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml logs -f
+
+Only app:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml logs -f app
+
+Only mysql:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml logs -f mysql
+
+
+Restart services
+----------------
+Restart app:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml restart app
+
+Restart all:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml restart
+
+
+Update project from GitHub
+--------------------------
+  cd /opt/apps/teachai
+  git pull origin main
+  docker compose --env-file .env.docker -f docker-compose.prod.yml up -d --build
+
+
+Run migrations
+--------------
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec app php artisan migrate --force
+
+
+Seed roles and documents
+------------------------
+Do not run full DatabaseSeeder unless you want default users.
+
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec app php artisan db:seed --class=RoleSeeder --force
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec app php artisan db:seed --class=DocumentSeeder --force
+
+
+Laravel commands
+----------------
+Clear and rebuild cache:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec app php artisan optimize:clear
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec app php artisan config:cache
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec app php artisan view:cache
+
+Show Laravel environment:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec app php artisan about --only=environment
+
+Open shell in app container:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec app bash
+
+
+Database
+--------
+Open MySQL CLI:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec mysql mysql -u teachai -p teachai
+
+Backup database:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec mysql mysqldump -u teachai -p teachai > teachai-backup.sql
+
+Check counts:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml exec app php artisan tinker --execute='echo "users=".App\Models\User::count().PHP_EOL; echo "roles=".App\Models\Role::count().PHP_EOL; echo "documents=".App\Models\Document::count().PHP_EOL;'
+
+
+phpMyAdmin
+----------
+phpMyAdmin is available only on server localhost:
+  http://127.0.0.1:8082
+
+Open phpMyAdmin from your local computer with SSH tunnel:
+  ssh -L 8082:127.0.0.1:8082 zhagparovr@172.20.252.171
+
+Then open in browser on your computer:
+  http://127.0.0.1:8082
+
+
+Nginx
+-----
+Test Nginx config:
+  sudo nginx -t
+
+Reload Nginx:
+  sudo systemctl reload nginx
+
+TeachAI Nginx config:
+  sudo nano /etc/nginx/sites-available/teachai.atu.kz
+
+
+Health checks
+-------------
+Check local app from server:
+  curl -I http://127.0.0.1:8081/
+
+Check public HTTPS:
+  curl -I https://teachai.atu.kz/
+
+
+Stop / start
+------------
+Stop containers:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml down
+
+Start containers:
+  docker compose --env-file .env.docker -f docker-compose.prod.yml up -d
+
+
+Important
+---------
+Do not commit .env.docker.
+Do not put passwords or API keys into Git.
