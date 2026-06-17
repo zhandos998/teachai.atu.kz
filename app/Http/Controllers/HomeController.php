@@ -17,7 +17,7 @@ class HomeController extends Controller
     {
         return auth()->check()
             ? Inertia::render('Dashboard')
-            : redirect()->route('login');
+            : Inertia::render('Welcome');
     }
     public function dashboard()
     {

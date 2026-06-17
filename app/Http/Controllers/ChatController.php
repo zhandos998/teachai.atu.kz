@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use OpenAI\Laravel\Facades\OpenAI;
 use Illuminate\Support\Facades\Log;
 use App\Services\Chat\ChatPipeline;
+use OpenAI\Exceptions\RateLimitException;
 
 class ChatController extends Controller
 {
@@ -17,8 +18,12 @@ class ChatController extends Controller
         $chat = $this->getChat($request);
         $question = $this->storeUserMessage($chat, $request->message);
 
-        return app(ChatPipeline::class)
-            ->handle($chat, $question);
+        try {
+            return app(ChatPipeline::class)
+                ->handle($chat, $question);
+        } catch (RateLimitException $exception) {
+            return $this->handleOpenAiRateLimit($chat, $question, $exception);
+        }
     }
 
     public function send_old(Request $request)
@@ -502,5 +507,48 @@ class ChatController extends Controller
         Log::info('USER QUESTION:', [$message]);
 
         return $message;
+    }
+
+    protected function handleOpenAiRateLimit(Chat $chat, string $question, RateLimitException $exception)
+    {
+        $retryAfter = $exception->response->getHeaderLine('retry-after');
+        $answer = $this->rateLimitAnswer($question);
+
+        Log::warning('OPENAI_RATE_LIMIT', [
+            'user_id' => auth()->id(),
+            'chat_id' => $chat->id,
+            'retry_after' => $retryAfter ?: null,
+        ]);
+
+        $chat->messages()->create([
+            'role' => 'assistant',
+            'content' => $answer,
+        ]);
+
+        AiLog::create([
+            'user_id' => auth()->id(),
+            'chat_id' => $chat->id,
+            'question' => $question,
+            'matched_titles' => ['RATE_LIMIT'],
+            'context' => 'OPENAI_RATE_LIMIT',
+            'final_answer' => $answer,
+            'error' => $exception->getMessage(),
+            'duration_ms' => (microtime(true) - LARAVEL_START) * 1000,
+        ]);
+
+        return response()->json([
+            'answer' => $answer,
+            'error' => 'rate_limit',
+            'retry_after' => $retryAfter ?: null,
+        ], 429);
+    }
+
+    protected function rateLimitAnswer(string $question): string
+    {
+        if (preg_match('/[әғқңөұүһі]/iu', $question)) {
+            return "Қазір AI сұраныстарының лимиті асып кетті. Бірнеше секундтан кейін қайталап көріңіз.";
+        }
+
+        return "Сейчас превышен лимит запросов к AI. Попробуйте повторить через несколько секунд.";
     }
 }

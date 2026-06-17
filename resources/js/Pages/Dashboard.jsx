@@ -36,41 +36,60 @@ export default function Dashboard() {
 
     const sendMessage = async () => {
         if (isThinking) return;
-        if (!message.trim()) return;
+        const outgoingMessage = message.trim();
+        if (!outgoingMessage) return;
 
         setIsThinking(true);
 
         let chatId = currentChat?.id;
+        let userMessageAdded = false;
 
-        // 1) ЕСЛИ НЕТ ЧАТА → создаем новый как ChatGPT
-        if (!currentChat) {
-            const res = await axios.post("/chat/new");
-            chatId = res.data.chat.id;
-            setCurrentChat(res.data.chat);
+        try {
+            // 1) ЕСЛИ НЕТ ЧАТА → создаем новый как ChatGPT
+            if (!currentChat) {
+                const res = await axios.post("/chat/new");
+                chatId = res.data.chat.id;
+                setCurrentChat(res.data.chat);
 
-            router.visit(`/chat/${chatId}`, {
-                preserveState: true,
-                preserveScroll: true,
+                router.visit(`/chat/${chatId}`, {
+                    preserveState: true,
+                    preserveScroll: true,
+                });
+            }
+
+            // 2) Показываем сообщение пользователя сразу
+            setMessages((prev) => [
+                ...prev,
+                { role: "user", content: outgoingMessage },
+            ]);
+            userMessageAdded = true;
+            setMessage("");
+
+            // 3) Отправляем сообщение в API
+            const response = await axios.post("/chat/send", {
+                chat_id: chatId,
+                message: outgoingMessage,
             });
+
+            // 4) Добавляем ответ ассистента
+            setMessages((prev) => [
+                ...prev,
+                { role: "assistant", content: response.data.answer },
+            ]);
+        } catch (error) {
+            const answer =
+                error.response?.data?.answer ??
+                "Не удалось получить ответ. Попробуйте повторить запрос позже.";
+
+            if (userMessageAdded) {
+                setMessages((prev) => [
+                    ...prev,
+                    { role: "assistant", content: answer },
+                ]);
+            }
+        } finally {
+            setIsThinking(false);
         }
-
-        // 2) Показываем сообщение пользователя сразу
-        setMessages((prev) => [...prev, { role: "user", content: message }]);
-
-        // 3) Отправляем сообщение в API
-        const response = await axios.post("/chat/send", {
-            chat_id: chatId,
-            message,
-        });
-
-        // 4) Добавляем ответ ассистента
-        setMessages((prev) => [
-            ...prev,
-            { role: "assistant", content: response.data.answer },
-        ]);
-
-        setMessage("");
-        setIsThinking(false);
     };
 
     return (

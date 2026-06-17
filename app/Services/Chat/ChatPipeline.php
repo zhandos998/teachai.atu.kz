@@ -55,6 +55,14 @@ class ChatPipeline
 
     protected function translateAndDetect(string $text): array
     {
+        if ($this->looksRussian($text)) {
+            return [
+                'lang' => 'ru',
+                'ru' => $text,
+                'original' => $text,
+            ];
+        }
+
         $response = OpenAI::chat()->create([
             'model' => 'gpt-4o-mini',
             'messages' => [
@@ -95,5 +103,27 @@ class ChatPipeline
         }
 
         return $data;
+    }
+
+    protected function looksRussian(string $text): bool
+    {
+        $lower = mb_strtolower($text);
+
+        if (!preg_match('/\p{Cyrillic}/u', $lower)) {
+            return false;
+        }
+
+        if (preg_match('/[әғқңөұүһі]/u', $lower)) {
+            return false;
+        }
+
+        if (preg_match('/\b(калай|қалай|болад|алсам|алуга|алуға|жуктеу|жүктеу|салем|сәлем|сиз|сіз|маган|маған|керек|жатыр|туралы|кайда|қайда|неге)\b/u', $lower)) {
+            return false;
+        }
+
+        return preg_match(
+            '/\b(как|что|где|когда|почему|зачем|можно|нужно|получить|загрузить|создать|войти|система|умкд|карта|айди|скажите|подскажите|пожалуйста)\b/u',
+            $lower
+        ) === 1;
     }
 }
