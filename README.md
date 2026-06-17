@@ -7,12 +7,16 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Production
+
+Актуальная инструкция для деплоя через GitHub, Docker Compose, MySQL и phpMyAdmin находится в [DEPLOYMENT.md](DEPLOYMENT.md).
+
 ## Docker
 
 Проект можно поднять через Docker Compose с PHP/Apache, Vite и MySQL:
 
 ```bash
-docker compose up --build
+docker compose --env-file .env.docker up --build
 ```
 
 После запуска приложение будет доступно на `http://localhost:8081`, Vite dev server на `http://localhost:5173`, а MySQL с хоста на `127.0.0.1:3308`.

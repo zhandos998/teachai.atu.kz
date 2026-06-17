@@ -2,6 +2,8 @@
 set -e
 
 mkdir -p \
+    storage/app/documents \
+    storage/app/public \
     storage/framework/cache/data \
     storage/framework/sessions \
     storage/framework/views \
@@ -27,6 +29,11 @@ php artisan config:clear --no-interaction || true
 
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     php artisan migrate --force --no-interaction
+fi
+
+if [ "${RUN_OPTIMIZE:-true}" = "true" ] && [ "${APP_ENV:-}" = "production" ]; then
+    php artisan config:cache --no-interaction
+    php artisan view:cache --no-interaction
 fi
 
 exec "$@"

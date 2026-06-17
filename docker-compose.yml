@@ -39,31 +39,35 @@ services:
 
   mysql:
     image: mysql:8.4
-    env_file:
-      - .env.docker
     environment:
-      MYSQL_DATABASE: ${DB_DATABASE:-teachai}
-      MYSQL_USER: ${DB_USERNAME:-teachai}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-teachai}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: "${DB_DATABASE:?Set DB_DATABASE in .env.docker and pass --env-file .env.docker}"
+      MYSQL_USER: "${DB_USERNAME:?Set DB_USERNAME in .env.docker and pass --env-file .env.docker}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:?Set DB_PASSWORD in .env.docker and pass --env-file .env.docker}"
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-${DB_PASSWORD:?Set DB_PASSWORD in .env.docker and pass --env-file .env.docker}}"
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
     ports:
       - "127.0.0.1:3308:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${DB_USERNAME} --password=$${DB_PASSWORD} --silent"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} --password=$${MYSQL_PASSWORD} --silent"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
     restart: unless-stopped
 
-  adminer:
-    image: adminer:4
+  phpmyadmin:
+    image: phpmyadmin:5.2-apache
     environment:
-      ADMINER_DEFAULT_SERVER: mysql
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 0
+      UPLOAD_LIMIT: 64M
     ports:
-      - "127.0.0.1:8082:8080"
+      - "127.0.0.1:8082:80"
     depends_on:
       mysql:
         condition: service_healthy

@@ -47,9 +47,16 @@ RUN if [ "$INSTALL_DEV" = "true" ]; then \
 COPY . .
 COPY --from=assets /app/public/build ./public/build
 COPY docker/apache/000-default.conf /etc/apache2/sites-available/000-default.conf
+COPY docker/php/opcache.ini /tmp/opcache.production.ini
+COPY docker/php/opcache.dev.ini /tmp/opcache.dev.ini
 COPY docker/entrypoint.sh /usr/local/bin/docker-entrypoint
 
-RUN chmod +x /usr/local/bin/docker-entrypoint \
+RUN if [ "$INSTALL_DEV" = "true" ]; then \
+        cp /tmp/opcache.dev.ini /usr/local/etc/php/conf.d/opcache.ini; \
+    else \
+        cp /tmp/opcache.production.ini /usr/local/etc/php/conf.d/opcache.ini; \
+    fi \
+    && chmod +x /usr/local/bin/docker-entrypoint \
     && composer dump-autoload --optimize --no-interaction \
     && mkdir -p \
         storage/framework/cache/data \
